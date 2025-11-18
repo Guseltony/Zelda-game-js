@@ -31,6 +31,7 @@ function gameFunctionality() {
       "%        b",
       "a   (    b",
       "a  *     b",
+      "a        b",
       "xdd)dd)ddz",
     ],
 
@@ -65,6 +66,7 @@ function gameFunctionality() {
         squares.push(square);
       }
     }
+    createPlayer();
   }
 
   createBoard();
@@ -111,11 +113,60 @@ function gameFunctionality() {
         square.classList.add("fire-pot");
         break;
       case "*":
-        // createSlicer(x, y);
+        createSlicer(x, y);
         break;
       case "}":
-        // createSkeletor(x, y);
+        createSkeletor(x, y);
         break;
     }
+  }
+
+  function createPlayer() {
+    const playerElement = document.createElement("div");
+    playerElement.className = "link-going-right";
+    playerElement.id = "player";
+    playerElement.style.left = `${(playerPosition % width) * tileSize}px`;
+    playerElement.style.top = `${
+      Math.floor(playerPosition / width) * tileSize
+    }px`;
+    grid.appendChild(playerElement);
+  }
+
+  function createSlicer(x, y) {
+    const slicerElement = document.createElement("div");
+    slicerElement.classList.add("slicer");
+    slicerElement.style.left = `${x * tileSize}px`;
+    slicerElement.style.top = `${y * tileSize}px`;
+
+    const slicer = {
+      x,
+      y,
+      sirection: -1,
+      type: "slicer",
+      slicerElement,
+    };
+
+    enemies.push(slicer);
+
+    grid.appendChild(slicerElement);
+  }
+
+  function createSkeletor(x, y) {
+    const skeletorElement = document.createElement("div");
+    skeletorElement.classList.add("skeletor");
+    skeletorElement.style.left = `${x * tileSize}px`;
+    skeletorElement.style.top = `${y * tileSize}px`;
+
+    const skeletor = {
+      x,
+      y,
+      direction: -1,
+      timer: Math.random() * 5,
+      type: "skeletor",
+      skeletorElement,
+    };
+
+    enemies.push(skeletor);
+    grid.appendChild(skeletorElement);
   }
 }

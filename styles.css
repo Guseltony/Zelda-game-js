@@ -21,11 +21,42 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.5) inset, 0 1px 0 #fff;
   display: flex;
   flex-wrap: wrap;
+  background: url('images/u4DVsx6.png');
+  background-size: cover;
+  position: relative;
+  padding: 0;
 }
 
 .grid div {
   height: 48px;
   width: 48px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+.link-going-left, .link-going-right, .link-going-down, .link-going-up {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  z-index: 10;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.link-going-left {
+  background-image: url(images/1Xq9biB.png);
+}
+.link-going-right {
+  background-image: url(images/yZIb8O2.png);
+}
+.link-going-down {
+  background-image: url(images/tVtlP6y.png);
+}
+.link-going-up {
+  background-image: url(images/UkV0we0.png);
 }
 
 .left-wall {
@@ -68,10 +99,19 @@ body {
 .lanterns {
   background-image: url('/Zelda-game/images/wiSiY09.png');
 }
+.slicer, .skeletor {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+z-index: 10;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
 .slicer {
   background-image: url('/Zelda-game/images/c6JFi5Z.png');
 }
-.skeletors {
+.skeletor {
   background-image: url('/Zelda-game/images/Ei1VnX8.png');
 }
 .kaboom {
