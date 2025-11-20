@@ -476,6 +476,4 @@ function gameFunctionality() {
 
   createBoard();
   animationId = requestAnimationFrame(gameLoop);
-
-
 }
