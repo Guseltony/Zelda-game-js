@@ -155,6 +155,7 @@ let mapPixelW = 0,
 let keys = {};
 let mousePos = { x: 0, y: 0 };
 let mouseDown = false;
+let mouseMoved = false;
 
 // Player stats & powerups
 let gunLevel = 1;
@@ -723,6 +724,7 @@ function setupInputs() {
     const r = canvas.getBoundingClientRect();
     mousePos.x = e.clientX - r.left;
     mousePos.y = e.clientY - r.top;
+    mouseMoved = true;
   });
   canvas.addEventListener("mousedown", () => {
     mouseDown = true;
@@ -883,17 +885,12 @@ function updatePlayer(dt, ts) {
   if (!wallHit(player.x, ny, player.w, player.h)) player.y = ny;
 
   // Aim direction
-  // Capture "Last Interaction" to decide between movement or mouse focus
-  const isUsingMouse =
-    mouseDown || Math.abs(mousePos.x) > 0 || Math.abs(mousePos.y) > 0;
-  const isMouseDown = mouseDown || keys["Space"] || mobileShoot;
-
   if (joystick.active) {
     // Priority 1: Mobile Joystick
     player.dirX = joystick.dx;
     player.dirY = joystick.dy;
-  } else if (isMouseDown && !keys["Space"] && !mobileShoot) {
-    // Priority 2: Mouse Click Aiming
+  } else if (mouseMoved && !mobileShoot) {
+    // Priority 2: Mouse Aim (Anytime mouse is active/moved)
     const worldMx = mousePos.x + camX;
     const worldMy = mousePos.y + camY;
     const aimDx = worldMx - player.x;
@@ -904,7 +901,7 @@ function updatePlayer(dt, ts) {
       player.dirY = aimDy / aimLen;
     }
   } else if (spd > 0) {
-    // Priority 3: Movement (Keyboard/WASD)
+    // Priority 3: Movement (Fallback)
     player.dirX = vx;
     player.dirY = vy;
   }
@@ -1501,75 +1498,82 @@ function drawPlayer() {
   ctx.rotate(angle);
 
   const flash = damageFlash > 0;
-  const colBase = flash ? "#ff6060" : "#1e4c7a";
-  const colDark = flash ? "#a00000" : "#0f233b";
-  const colHigh = flash ? "#ffaaaa" : "#4dabf7";
+  const colBase = flash ? "#ff6060" : "#2a5c8a"; // slightly brighter blue
+  const colDark = flash ? "#a00000" : "#132b45"; // deeper shadow
+  const colHigh = flash ? "#ffaaaa" : "#5eb8ff"; // more vibrant highlight
 
   // 1. Oval Shadow Overlay
-  ctx.fillStyle = "rgba(0,0,0,0.35)";
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
   ctx.beginPath();
-  ctx.ellipse(0, 10, 17, 8, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 10, 18, 9, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // 2. Tactical Shoulders/Vest (Wider base for human form)
+  // 2. Tactical Shoulders/Vest (Improved proportions)
   ctx.fillStyle = colDark;
-  roundRect(ctx, -13, -10, 26, 18, 6);
+  roundRect(ctx, -14, -10, 28, 20, 6);
   ctx.fill();
 
   // Vest Highlight
   ctx.fillStyle = colBase;
-  roundRect(ctx, -10, -8, 20, 14, 4);
+  roundRect(ctx, -11, -8, 22, 16, 4);
   ctx.fill();
 
   // 3. Detailed Backpack/Radio
   ctx.fillStyle = "#111";
-  roundRect(ctx, -6, -2, 12, 12, 2);
+  roundRect(ctx, -7, -2, 14, 13, 3);
   ctx.fill();
-  ctx.fillStyle = "#333"; // Radio antenna
-  ctx.fillRect(-6, 0, 2, 4);
+  ctx.fillStyle = "#444"; // Radio antenna
+  ctx.fillRect(-7, 0, 2, 5);
 
   // 4. Arms (Forward focused)
   ctx.fillStyle = colBase;
   // Left arm stabilizing
-  roundRect(ctx, -14, -6, 6, 14, 3);
+  roundRect(ctx, -15, -7, 7, 16, 3);
   // Right arm triggering
-  roundRect(ctx, 8, -6, 6, 14, 3);
+  roundRect(ctx, 8, -7, 7, 16, 3);
   ctx.fill();
 
-  // 5. Head (Dome with visor)
-  const headGrad = ctx.createRadialGradient(-3, -16, 1, 0, -14, 8);
+  // 5. Head (Dome with visor, better gradient)
+  const headGrad = ctx.createRadialGradient(-3, -13, 2, 0, -12, 10);
   headGrad.addColorStop(0, colHigh);
+  headGrad.addColorStop(0.6, colBase);
   headGrad.addColorStop(1, colDark);
   ctx.fillStyle = headGrad;
   ctx.beginPath();
-  ctx.arc(0, -14, 9, 0, Math.PI * 2);
+  ctx.arc(0, -12, 11, 0, Math.PI * 2);
   ctx.fill();
 
   // Visor Detail
-  ctx.fillStyle = "#00e5ff";
+  ctx.fillStyle = "#00ffff";
   ctx.beginPath();
-  ctx.ellipse(0, -16, 6, 2.8, 0, 0, Math.PI, true);
+  ctx.ellipse(0, -14, 7, 3, 0, 0, Math.PI, true);
   ctx.fill();
-  ctx.shadowBlur = 12;
+  ctx.shadowBlur = 15;
   ctx.shadowColor = "#00e5ff";
   ctx.fill();
   ctx.shadowBlur = 0;
 
   // 6. Upgraded Weapon visual
   ctx.save();
-  ctx.translate(10, -5);
-  ctx.fillStyle = "#222";
+  ctx.translate(11, -5);
+  ctx.fillStyle = "#1a1a1a";
   if (gunLevel > 1) {
     // Twin barrel elite gun
-    ctx.fillRect(0, -18, 4, 20);
-    ctx.fillRect(5, -16, 4, 18);
+    ctx.fillRect(-1, -22, 5, 24);
+    ctx.fillRect(4, -20, 5, 20);
     ctx.fillStyle = "#ffd60a";
-    ctx.fillRect(2, 0, 5, 2);
+    ctx.fillRect(2, 0, 6, 3);
+    // Muzzle glow hint
+    ctx.fillStyle = "rgba(255, 214, 10, 0.4)";
+    ctx.fillRect(0, -24, 3, 2);
+    ctx.fillRect(5, -22, 3, 2);
   } else {
     // Standard tactical rifle
-    ctx.fillRect(0, -14, 5, 18);
+    ctx.fillRect(0, -18, 5, 22);
     ctx.fillStyle = "#000";
-    ctx.fillRect(1.5, -18, 2, 10);
+    ctx.fillRect(1.5, -20, 2, 10); // Barrel extension
+    ctx.fillStyle = "#444";
+    ctx.fillRect(1, 0, 3, 4); // Magazine
   }
   ctx.restore();
 
